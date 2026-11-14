@@ -1,6 +1,8 @@
 # Legrand RF Lighting Control
 
-[![hacs_badge](https://img.shields.io/badge/HACS-Custom-41BDF5.svg)](https://hacs.xyz)
+<!-- ha-marketplace:exclude-start -->
+[![Open your Home Assistant instance and open this repository in the Marketplace.](https://my.home-assistant.io/badges/marketplace_repository.svg)](https://my.home-assistant.io/redirect/marketplace_repository/?owner=MichaelB2018&repository=legrand_rflc&category=integration)
+<!-- ha-marketplace:exclude-end -->
 
 A [Home Assistant](https://www.home-assistant.io/) custom integration for the **Legrand LC7001 Whole House Lighting Controller**.
 
@@ -28,9 +30,16 @@ Once installed, every light zone configured on your LC7001 appears as a Home Ass
 
 ---
 
+<!-- ha-marketplace:exclude-start -->
 ## Installation
 
-### Option 1: HACS (Recommended)
+### Option 1: Home Assistant Marketplace (Recommended, Home Assistant 2026.11+)
+
+Click the button below to open this repository in the Marketplace of your Home Assistant instance, then click **Install** and restart Home Assistant.
+
+[![Open your Home Assistant instance and open this repository in the Marketplace.](https://my.home-assistant.io/badges/marketplace_repository.svg)](https://my.home-assistant.io/redirect/marketplace_repository/?owner=MichaelB2018&repository=legrand_rflc&category=integration)
+
+### Option 2: HACS (Home Assistant before 2026.11)
 
 [HACS](https://hacs.xyz/) is the Home Assistant Community Store — a one-click way to install and update custom integrations.
 
@@ -44,7 +53,7 @@ Once installed, every light zone configured on your LC7001 appears as a Home Ass
 
 After the restart, continue to [Configuration](#configuration) below.
 
-### Option 2: Manual Installation
+### Option 3: Manual Installation
 
 Use this if you don't have HACS or prefer to manage files yourself.
 
@@ -91,6 +100,7 @@ Use this if you don't have HACS or prefer to manage files yourself.
 5. **Restart Home Assistant** (Settings → System → Restart).
 
 After the restart, continue to [Configuration](#configuration) below.
+<!-- ha-marketplace:exclude-end -->
 
 ---
 
@@ -140,9 +150,9 @@ The LC7001 connects to your network via Ethernet. Here are some ways to find its
 
 ## Updating the Integration
 
-### With HACS
+### With the Marketplace or HACS
 
-HACS will notify you when a new version is available. Click **Update** and restart Home Assistant.
+The Marketplace (or HACS) will notify you when a new version is available. Click **Update** and restart Home Assistant.
 
 ### Manual
 
