@@ -88,9 +88,10 @@ Use this if you don't have HACS or prefer to manage files yourself.
            ├── strings.json
            ├── quality_scale.yaml
            ├── py.typed
-           ├── icon.png
-           ├── icon@2x.png
-           ├── logo.png
+           ├── brand/
+           │   ├── icon.png
+           │   ├── icon@2x.png
+           │   └── logo.png
            └── translations/
                └── en.json
    ```
