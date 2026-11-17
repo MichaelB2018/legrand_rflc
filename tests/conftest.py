@@ -24,6 +24,11 @@ MOCK_MAC: Final = "001122334455"
 MOCK_KEY_HEX: Final = "0123456789abcdef0123456789abcdef"
 
 
+@pytest.fixture(autouse=True)
+def auto_enable_custom_integrations(enable_custom_integrations: None) -> None:
+    """Let Home Assistant load the custom integration in every test."""
+
+
 class MockHub:
     """Mock Hub with real event emitting for testing."""
 
