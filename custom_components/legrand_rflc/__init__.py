@@ -12,7 +12,7 @@ from typing import Final
 
 from homeassistant.const import CONF_AUTHENTICATION, CONF_HOST, CONF_MAC, CONF_PORT
 from homeassistant.core import HomeAssistant
-from homeassistant.exceptions import ConfigEntryNotReady
+from homeassistant.exceptions import ConfigEntryAuthFailed, ConfigEntryNotReady
 from homeassistant.helpers import device_registry as dr
 
 from .const import DOMAIN, LegrandRFLCConfigEntry, LegrandRFLCData
@@ -44,8 +44,7 @@ async def async_setup_entry(
             f"Cannot connect to LC7001 hub at {host}"
         ) from err
     except Authenticator.Error as err:
-        entry.async_start_reauth(hass)
-        raise ConfigEntryNotReady(
+        raise ConfigEntryAuthFailed(
             f"Authentication failed for LC7001 hub at {host}"
         ) from err
 

@@ -1,7 +1,8 @@
 # Vendored from lc7001 v1.0.5 (https://github.com/rtyle/lc7001)
 # Original author: Ross Tyler
 # License: MIT (https://github.com/rtyle/lc7001/blob/master/LICENSE)
-# Modifications: None (vendored as-is to resolve PyPI install failures)
+# Modifications: redact key material (Keys property, challenge responses)
+#   from log output; otherwise vendored as-is to resolve PyPI install failures
 
 """asyncio (aio) Legrand Adorne LC7001 Hub interface.
 
@@ -18,6 +19,7 @@ import collections
 import contextlib
 import json
 import logging
+import re
 import time
 from typing import Any, Final, Mapping, MutableMapping
 
@@ -25,6 +27,15 @@ from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 
 _logger: Final = logging.getLogger(__name__)
+
+REDACTED: Final = "**REDACTED**"
+_KEYS_IN_FRAME: Final = re.compile(rb'("Keys"\s*:\s*")[^"]*(")')
+
+
+def _redact_frame(frame: bytes) -> str:
+    """Decode a received frame for logging, masking any Keys value."""
+    redacted = _KEYS_IN_FRAME.sub(rb"\1" + REDACTED.encode() + rb"\2", frame)
+    return redacted.decode(errors="replace")
 
 
 def hash_password(data: bytes) -> bytes:
@@ -240,16 +251,26 @@ class _Sender(Composer):
         self._id = 0  # id of last send
         self._writer: asyncio.StreamWriter = None
 
+    def _redact(self, message: Mapping[str, Any]) -> Mapping[str, Any]:
+        """Return message for logging with any Keys property masked."""
+        property_list = message.get(self.PROPERTY_LIST)
+        if isinstance(property_list, Mapping) and self.KEYS in property_list:
+            return {
+                **message,
+                self.PROPERTY_LIST: {**property_list, self.KEYS: REDACTED},
+            }
+        return message
+
     async def send(self, message: MutableMapping[str, Any]):
         """Send a composed message with the next ID."""
         writer = self._writer
         if writer is None:
-            _logger.warning("\t! %s", message)
+            _logger.warning("\t! %s", self._redact(message))
         else:
             self._id += 1
             writer.write(self.wrap(self._id, message))
             await writer.drain()
-            _logger.debug("\t< %s", message)
+            _logger.debug("\t< %s", self._redact(message))
 
 
 class _Inner:  # pylint: disable=too-few-public-methods
@@ -330,14 +351,16 @@ class Receiver(_Sender):
         try:
             message = json.loads(frame)
         except json.JSONDecodeError as error:
-            _logger.warning("except json.JSONDecodeError: %s %s", error, frame)
+            _logger.warning(
+                "except json.JSONDecodeError: %s %s", error, _redact_frame(frame)
+            )
         else:
             await self.receive(message)
 
     async def session(self):
         """Iterate over read frames forever."""
         async for frame in self._frames:
-            _logger.debug("\t\t> %s", frame.decode())
+            _logger.debug("\t\t> %s", _redact_frame(frame))
             await self.unwrap(frame)
 
 
@@ -522,14 +545,14 @@ class Authenticator(Emitter):  # pylint: disable=too-few-public-methods
         writer = self._writer
         writer.write(message.encode())
         await writer.drain()
-        _logger.debug("\t< %s", message)
+        _logger.debug("\t< %s", REDACTED)
 
     async def _receive_security_setkey(self):
         # } terminated json encoding
         frame = await asyncio.wait_for(
             self._reader.readuntil(b"}"), self._read_timeout
         )
-        _logger.debug("\t\t> %s", frame.decode())
+        _logger.debug("\t\t> %s", _redact_frame(frame))
         try:
             message = json.loads(frame)
         except json.JSONDecodeError as error:
